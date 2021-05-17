@@ -1,6 +1,7 @@
 import pickle
+import pandas as pd
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 app = Flask('app')
 
@@ -13,15 +14,18 @@ def test():
 @app.route('/predict', methods=['POST'])
 def predict():
     elem = request.get_json()
-    print(elem)
 
-    """
-        with open('./model.bin', 'rb') as f_in:
+    with open('./model.bin', 'rb') as f_in:
         model = pickle.load(f_in)
         f_in.close()
-    """
 
-    return elem
+    prediction = model.predict(pd.json_normalize(elem))
+
+    response = {
+        "relevant": bool(prediction[0])
+    }
+
+    return jsonify(response)
 
 
 if __name__ == '__main__':
